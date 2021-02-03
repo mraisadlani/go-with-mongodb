@@ -51,19 +51,29 @@ func (r *ProductRepositoryImpl) FindAll(limit  int64, offset int64) ([]entity.Pr
 	return products, nil
 }
 
+func (r *ProductRepositoryImpl) CountAllUsers() (int64, error) {
+	counter, err := r.Connection.Collection(collected).CountDocuments(ctx, bson.M{}, nil)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return counter, nil
+}
+
 // func (r *ProductRepositoryImpl) FindById(id string) (entity.Product, error) {
 // 	return entity.Product{}, nil
 // }
 
-// func (r *ProductRepositoryImpl) Save(productDTO entity.Product) (bool, error) {
-// 	err := r.db.C(r.collection).Insert(productDTO)
+func (r *ProductRepositoryImpl) Save(productDTO *entity.Product) (bool, error) {
+	_, err := r.Connection.Collection(collected).InsertOne(ctx, productDTO)
 
-// 	if err != nil {
-// 		return false, err
-// 	}
+	if err != nil {
+		return false, err
+	}
 	
-// 	return true, nil
-// }
+	return true, nil
+}
 
 // func (r *ProductRepositoryImpl) Update(productDTO entity.Product, id string) (bool, error) {
 // 	return true, nil

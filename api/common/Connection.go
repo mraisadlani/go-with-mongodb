@@ -2,10 +2,8 @@ package common
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
-	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,9 +11,7 @@ import (
 
 
 func Connection() (*mongo.Database, error) {
-	Host := os.Getenv("MONGO_HOST")
-
-	clientOpt := options.Client().ApplyURI(Host)
+	clientOpt := options.Client().ApplyURI("mongodb://localhost:27017")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOpt)
@@ -33,5 +29,5 @@ func Connection() (*mongo.Database, error) {
 
 	fmt.Println("Connected to MongoDB")
 
-	return client.Database("authentication"), nil
+	return client.Database("go_mongo"), nil
 }
