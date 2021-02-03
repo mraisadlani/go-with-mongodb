@@ -96,7 +96,7 @@ func CreateProduct(c *gin.Context) {
 	strings.Replace(product.CreateDate, "\"", "", -1)
 
 	repo := repository.NewProductRepositoryImpl(db)
-	get, err := repo.Save(&product)
+	get, err := repo.Save(product)
 
 	if err != nil {
 		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
@@ -106,9 +106,53 @@ func CreateProduct(c *gin.Context) {
 }
 
 func UpdateProduct(c *gin.Context) {
+	db, err := common.Connection()
 
+	if err != nil {
+		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	id := c.Param("id")
+
+	var product entity.Product
+
+	err = c.ShouldBindJSON(&product)
+
+	if err != nil {
+		payload.ResponseError(c, http.StatusUnprocessableEntity, err.Error())
+	}
+
+	product.CreateBy = "Dummy Update"
+	product.CreateDate = time.Now().Format("2006-01-02 15:04:05")
+	product.UpdateBy = "Dummy Update"
+	product.UpdateDate = time.Now().Format("2006-01-02 15:04:05")
+
+	strings.Replace(product.CreateDate, "\"", "", -1)
+
+	repo := repository.NewProductRepositoryImpl(db)
+	get, err := repo.Update(product, id)
+
+	if err != nil {
+		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	payload.Response(c, http.StatusCreated, "Berhasil mengubah product", get)
 }
 
 func DeleteProduct(c *gin.Context) {
+	db, err := common.Connection()
 
+	if err != nil {
+		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	id := c.Param("id")
+	repo := repository.NewProductRepositoryImpl(db)
+	get, err := repo.Delete(id)
+
+	if err != nil {
+		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	payload.Response(c, http.StatusCreated, "Berhasil menghapus product", get)
 }

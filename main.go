@@ -18,7 +18,7 @@ func main() {
 		RestAPI.GET("/FindProduct/:id", controller.FindProduct)
 		RestAPI.POST("/CreateProduct", controller.CreateProduct)
 		RestAPI.POST("/UpdateProduct/:id", controller.UpdateProduct)
-		// RestAPI.POST("/DeleteProduct/:id", controller.DeleteProduct)
+		RestAPI.POST("/DeleteProduct/:id", controller.DeleteProduct)
 	}
 	r.Run()
 }

@@ -77,7 +77,7 @@ func (r *ProductRepositoryImpl) FindById(id string) (entity.Product, error) {
 	return product, nil
 }
 
-func (r *ProductRepositoryImpl) Save(productDTO *entity.Product) (bool, error) {
+func (r *ProductRepositoryImpl) Save(productDTO entity.Product) (bool, error) {
 	_, err := r.Connection.Collection(collected).InsertOne(ctx, productDTO)
 
 	if err != nil {
@@ -87,10 +87,35 @@ func (r *ProductRepositoryImpl) Save(productDTO *entity.Product) (bool, error) {
 	return true, nil
 }
 
-// func (r *ProductRepositoryImpl) Update(productDTO entity.Product, id string) (bool, error) {
-// 	return true, nil
-// }
+func (r *ProductRepositoryImpl) Update(productDTO entity.Product, id string) (bool, error) {
+	productID, _ := primitive.ObjectIDFromHex(id)
 
-// func (r *ProductRepositoryImpl) Delete(id string) (bool, error) {
-// 	return true, nil
-// }
+	updateField := bson.M{
+		"$set": bson.M{
+			"nama_product": productDTO.NamaProduct,
+			"quantity": productDTO.Quantity,
+			"harga_satuan": productDTO.HargaSatuan,
+			"harga_jual": productDTO.HargaJual, 
+		},
+	}
+
+	_, err := r.Connection.Collection(collected).UpdateOne(ctx, bson.M{"_id": productID}, updateField)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (r *ProductRepositoryImpl) Delete(id string) (bool, error) {
+	productID, _ := primitive.ObjectIDFromHex(id)
+
+	_, err := r.Connection.Collection(collected).DeleteOne(ctx, bson.M{"_id": productID})
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
