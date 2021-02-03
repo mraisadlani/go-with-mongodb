@@ -54,7 +54,22 @@ func GetAllProduct(c *gin.Context) {
 }
 
 func FindProduct(c *gin.Context) {
+	db, err := common.Connection()
 
+	if err != nil {
+		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	id := c.Param("id")
+
+	repo := repository.NewProductRepositoryImpl(db)
+	get, err := repo.FindById(id)
+
+	if err != nil {
+		payload.ResponseError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	payload.Response(c, http.StatusCreated, "Berhasil mendapatkan data", get)
 }
 
 func CreateProduct(c *gin.Context) {

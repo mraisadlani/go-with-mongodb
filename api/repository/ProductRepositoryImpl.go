@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/vanilla/go-with-mongodb/api/entity"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
@@ -61,9 +62,20 @@ func (r *ProductRepositoryImpl) CountAllUsers() (int64, error) {
 	return counter, nil
 }
 
-// func (r *ProductRepositoryImpl) FindById(id string) (entity.Product, error) {
-// 	return entity.Product{}, nil
-// }
+func (r *ProductRepositoryImpl) FindById(id string) (entity.Product, error) {
+	var (
+		product entity.Product
+		productID, _ = primitive.ObjectIDFromHex(id)
+	)
+
+	err := r.Connection.Collection(collected).FindOne(ctx, bson.M{"_id": productID}).Decode(&product)
+
+	if err != nil {
+		return entity.Product{}, err
+	}
+
+	return product, nil
+}
 
 func (r *ProductRepositoryImpl) Save(productDTO *entity.Product) (bool, error) {
 	_, err := r.Connection.Collection(collected).InsertOne(ctx, productDTO)

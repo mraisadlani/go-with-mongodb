@@ -15,9 +15,9 @@ func main() {
 	RestAPI := r.Group("/api")
 	{
 		RestAPI.GET("/GetProduct", controller.GetAllProduct)
-		// RestAPI.GET("/FindProduct", controller.FindProduct)
+		RestAPI.GET("/FindProduct/:id", controller.FindProduct)
 		RestAPI.POST("/CreateProduct", controller.CreateProduct)
-		// RestAPI.POST("/UpdateProduct/:id", controller.UpdateProduct)
+		RestAPI.POST("/UpdateProduct/:id", controller.UpdateProduct)
 		// RestAPI.POST("/DeleteProduct/:id", controller.DeleteProduct)
 	}
 	r.Run()
