@@ -1,22 +1,37 @@
 package common
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"log"
 	"os"
 
-	"gopkg.in/mgo.v2")
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
 
 
-func Connection() (*mgo.Database, error) {
+func Connection() (*mongo.Database, error) {
 	Host := os.Getenv("MONGO_HOST")
-	Name := os.Getenv("MONGO_NAME")
 
-	session, err := mgo.Dial(Host)
+	clientOpt := options.Client().ApplyURI(Host)
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOpt)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	db := session.DB(Name)
+	// Check connection
+	err = client.Ping(context.TODO(), nil)
 
-	return db, nil
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB")
+
+	return client.Database("authentication"), nil
 }

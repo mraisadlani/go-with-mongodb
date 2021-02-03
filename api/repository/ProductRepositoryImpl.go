@@ -1,54 +1,74 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/vanilla/go-with-mongodb/api/entity"
-	"gopkg.in/mgo.v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
 
+var (
+	collected string = "products"
+	ctx context.Context
+)
 
 type ProductRepositoryImpl struct {
-	db *mgo.Database
-	collection string
+	Connection *mongo.Database
 }
 
-func NewProductRepositoryImpl(db *mgo.Database, collection string) *ProductRepositoryImpl {
-	return &ProductRepositoryImpl{
-		db: db,
-		collection: collection,
-	}
+func NewProductRepositoryImpl(Connection *mongo.Database) *ProductRepositoryImpl {
+	return &ProductRepositoryImpl{Connection: Connection}
 }
 
-func (r *ProductRepositoryImpl) FindAll() ([]entity.Product, error) {
-	var products []entity.Product
+func (r *ProductRepositoryImpl) FindAll(limit  int64, offset int64) ([]entity.Product, error) {
+	var (
+		products []entity.Product
+		product entity.Product
+		filterOption = options.Find()
+	)
 
-	err := r.db.C(r.collection).Find(bson.M{}).All(&products)
+	filterOption.SetLimit(limit)
+	filterOption.SetSkip(offset)
+
+	row, err := r.Connection.Collection(collected).Find(ctx, bson.M{}, filterOption)
 
 	if err != nil {
 		return nil, err
 	}
 
+	for row.Next(ctx) {
+		err := row.Decode(&product)
+
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
 	return products, nil
 }
 
-func (r *ProductRepositoryImpl) FindById(id string) (entity.Product, error) {
-	return entity.Product{}, nil
-}
+// func (r *ProductRepositoryImpl) FindById(id string) (entity.Product, error) {
+// 	return entity.Product{}, nil
+// }
 
-func (r *ProductRepositoryImpl) Save(productDTO entity.Product) (bool, error) {
-	err := r.db.C(r.collection).Insert(productDTO)
+// func (r *ProductRepositoryImpl) Save(productDTO entity.Product) (bool, error) {
+// 	err := r.db.C(r.collection).Insert(productDTO)
 
-	if err != nil {
-		return false, err
-	}
+// 	if err != nil {
+// 		return false, err
+// 	}
 	
-	return true, nil
-}
+// 	return true, nil
+// }
 
-func (r *ProductRepositoryImpl) Update(productDTO entity.Product, id string) (bool, error) {
-	return true, nil
-}
+// func (r *ProductRepositoryImpl) Update(productDTO entity.Product, id string) (bool, error) {
+// 	return true, nil
+// }
 
-func (r *ProductRepositoryImpl) Delete(id string) (bool, error) {
-	return true, nil
-}
+// func (r *ProductRepositoryImpl) Delete(id string) (bool, error) {
+// 	return true, nil
+// }
